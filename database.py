@@ -96,11 +96,24 @@ def addGames(url, gameDate):
     cursor.close()
     mydb.close()
 
+def updateName():
+    mydb = mysql.connector.connect(host = "127.0.0.1", 
+                                user = "user", 
+                                passwd="password1!")
+    cursor = mydb.cursor()
 
+    cursor.execute("""
+        Update mlb_games set home_team = 'Cleveland Guardians' where home_team = 'Cleveland Indians';
+        Update mlb_games set away_team = 'Cleveland Guardians' where home_team = 'Cleveland Indians';
+                   """)
 
+    mydb.commit()
+    cursor.close()
+    mydb.close()
 
 if __name__ == "__main__":
     #only call once, creates the database and adds every mlb game from the past 10 seasons
     #up to the allstar game of 2026
     createDataBase()
     iterateThroughURLs()
+    updateName()#Cleveland changed their name in 2022, this updates the previous name
