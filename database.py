@@ -101,7 +101,7 @@ def updateName():
                                 user = "user", 
                                 passwd="password1!")
     cursor = mydb.cursor()
-
+    cursor.execute("USE MLB_GAMES;")
     cursor.execute("""
         Update mlb_games set home_team = 'Cleveland Guardians' where home_team = 'Cleveland Indians';
         Update mlb_games set away_team = 'Cleveland Guardians' where home_team = 'Cleveland Indians';
