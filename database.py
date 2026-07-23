@@ -119,7 +119,7 @@ def upcomingGames():
     delta = timedelta(days=1) 
 
     mydb = mysql.connector.connect(host = "127.0.0.1", 
-                                user = "timrauck", 
+                                user = "user", 
                                 passwd="password1!")
     cursor = mydb.cursor()
     cursor.execute("USE MLB_GAMES;")
