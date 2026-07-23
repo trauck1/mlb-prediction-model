@@ -123,19 +123,19 @@ def upcomingGames():
                                 passwd="password1!")
     cursor = mydb.cursor()
     cursor.execute("USE MLB_GAMES;")
-    # cursor.execute("""
-    # CREATE TABLE mlb_schedule (
-    # gameID INT PRIMARY KEY,
-    # season INT,
-    # date DATE,
-    # home_team VARCHAR(255),
-    # home_team_id INT,
-    # away_team VARCHAR(255),
-    # away_team_id INT,
-    # gameType  VARCHAR(255),
-    # url VARCHAR(255)
-    # )
-    # """)  
+    cursor.execute("""
+    CREATE TABLE mlb_schedule (
+    gameID INT PRIMARY KEY,
+    season INT,
+    date DATE,
+    home_team VARCHAR(255),
+    home_team_id INT,
+    away_team VARCHAR(255),
+    away_team_id INT,
+    gameType  VARCHAR(255),
+    url VARCHAR(255)
+    )
+    """)  
 
     while startDate <= endDate:
         dateString = startDate.strftime("%Y-%m-%d")
