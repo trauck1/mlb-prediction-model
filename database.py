@@ -111,9 +111,76 @@ def updateName():
     cursor.close()
     mydb.close()
 
+#save the schedule for the rest of the season into a database
+def upcomingGames():
+    baseURL = "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date="
+    startDate = date(2026, 7, 15)
+    endDate = date(2026, 12, 31)
+    delta = timedelta(days=1) 
+
+    mydb = mysql.connector.connect(host = "127.0.0.1", 
+                                user = "timrauck", 
+                                passwd="password1!")
+    cursor = mydb.cursor()
+    cursor.execute("USE MLB_GAMES;")
+    # cursor.execute("""
+    # CREATE TABLE mlb_schedule (
+    # gameID INT PRIMARY KEY,
+    # season INT,
+    # date DATE,
+    # home_team VARCHAR(255),
+    # home_team_id INT,
+    # away_team VARCHAR(255),
+    # away_team_id INT,
+    # gameType  VARCHAR(255),
+    # url VARCHAR(255)
+    # )
+    # """)  
+
+    while startDate <= endDate:
+        dateString = startDate.strftime("%Y-%m-%d")
+        url = baseURL + dateString
+        
+        response = requests.get(url)
+        data = response.json()
+    
+        for data in data["dates"]:
+            for game in data["games"]:
+                season = game["season"]
+                #unique primary key
+                gameID = game["gamePk"]
+                gameType = game["seriesDescription"]
+                officialDate = game["officialDate"]
+                gameState = game["status"]["detailedState"]
+                #if game gets canceled or rescheduled, the score and winner is set to None
+                awayData = game["teams"]["away"]
+                awayTeamID = awayData["team"]["id"]
+                awayTeamName = awayData["team"]["name"]
+                
+                homeData = game["teams"]["home"]
+                homeTeamID = homeData["team"]["id"]
+                homeTeamName = homeData["team"]["name"]
+                homeScore = homeData.get("score", None)
+                print(homeTeamName, awayTeamName, gameState)
+                if(gameState == "Scheduled" and homeScore == None):
+                    cursor.execute("""
+                    INSERT INTO mlb_schedule (gameID, season, date, home_team, home_team_id, away_team, 
+                           away_team_id, gameType, url)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """, (gameID, season, officialDate, homeTeamName, homeTeamID, awayTeamName, awayTeamID, 
+                    gameType, url))
+                
+        startDate += delta
+
+    mydb.commit()
+    cursor.close()
+    mydb.close()
+
+
 if __name__ == "__main__":
     #only call once, creates the database and adds every mlb game from the past 10 seasons
     #up to the allstar game of 2026
     createDataBase()
     iterateThroughURLs()
     updateName()#Cleveland changed their name in 2022, this updates the previous name
+    upcomingGames()#the rest of season schedule
